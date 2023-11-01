@@ -1,9 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import express from "express";
-import { IUserHandler } from "./handlers";
+import { IContentHandler, IUserHandler } from "./handlers";
+import ContentHandler from "./handlers/content";
 import UserHandler from "./handlers/user";
 import JWTMiddleware from "./middleware/jwt";
-import { IUserRepository } from "./repositories";
+import { IContentRepository, IUserRepository } from "./repositories";
+import ContentRepository from "./repositories/content";
 import UserRepository from "./repositories/user";
 
 const PORT = Number(process.env.PORT || 8888);
@@ -11,8 +13,10 @@ const app = express();
 const clnt = new PrismaClient();
 
 const userRepo: IUserRepository = new UserRepository(clnt);
+const contentRepo: IContentRepository = new ContentRepository(clnt);
 
 const userHandler: IUserHandler = new UserHandler(userRepo);
+const contentHandler: IContentHandler = new ContentHandler(contentRepo);
 
 const jwtMiddleware = new JWTMiddleware();
 
@@ -36,6 +40,12 @@ app.use("/auth", authRouter);
 authRouter.post("/login", userHandler.login);
 
 authRouter.get("/me", jwtMiddleware.auth, userHandler.selfcheck);
+
+const contentRouter = express.Router();
+
+app.use("/content", contentRouter);
+
+contentRouter.post("/", jwtMiddleware.auth, contentHandler.create);
 
 app.listen(PORT, () => {
   console.log(`LearnHub API is up at ${PORT}`);
