@@ -7,6 +7,17 @@ export interface IUser {
   registeredAt: Date;
 }
 
+type CreationErrorType = "UNIQUE";
+
+export class UserCreationError extends Error {
+  constructor(
+    public readonly type: CreationErrorType,
+    public readonly column: string
+  ) {
+    super();
+  }
+}
+
 // export interface IUserExtended
 //   extends Pick<User, "id" | "name" | "username" | "registeredAt"> {}
 
