@@ -31,4 +31,5 @@ export interface IContentRepository {
   getById(id: number): Promise<IContent>;
   getOwnerId(id: number): Promise<string>;
   updateById(id: number, data: IUpdateContentDto): Promise<IContent>;
+  deleteById(id: number): Promise<IContent>;
 }

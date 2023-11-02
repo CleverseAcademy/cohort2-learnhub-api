@@ -66,6 +66,32 @@ export default class ContentHandler implements IContentHandler {
     return res.status(200).json(mapToDto(content)).end();
   };
 
+  deleteById: RequestHandler<
+    { id: string },
+    IContentDto | IErrorDto,
+    undefined,
+    undefined,
+    AuthStatus
+  > = async (req, res) => {
+    const { id } = req.params;
+
+    const numericId = Number(id);
+
+    if (isNaN(numericId))
+      return res.status(400).json({ message: "id is invalid" }).end();
+
+    const ownerId = await this.repo.getOwnerId(numericId);
+
+    if (ownerId !== res.locals.user.id)
+      return res
+        .status(403)
+        .json({ message: "You're not the owner of this content" });
+
+    const content = await this.repo.deleteById(numericId);
+
+    return res.status(200).json(mapToDto(content)).end();
+  };
+
   create: RequestHandler<
     {},
     IContentDto | IErrorDto,

@@ -38,4 +38,11 @@ export interface IContentHandler {
     undefined,
     AuthStatus
   >;
+  deleteById: RequestHandler<
+    { id: string },
+    IContentDto | IErrorDto,
+    undefined,
+    undefined,
+    AuthStatus
+  >;
 }

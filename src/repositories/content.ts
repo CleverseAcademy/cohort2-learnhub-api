@@ -29,6 +29,18 @@ export default class ContentRepository implements IContentRepository {
       },
     });
   }
+
+  deleteById(id: number): Promise<IContent> {
+    return this.prisma.content.delete({
+      where: { id },
+      include: {
+        User: {
+          select: DEFAULT_USER_SELECT,
+        },
+      },
+    });
+  }
+
   updateById(id: number, data: IUpdateContentDto): Promise<IContent> {
     return this.prisma.content.update({
       data,
