@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { IContent, IContentRepository, ICreateContent } from ".";
+import { IUpdateContentDto } from "../dto/content";
 import { DEFAULT_USER_FIELDS } from "./user";
 
 const INCLUDE_OWNERS: Prisma.ContentInclude = {
@@ -26,6 +27,21 @@ export default class ContentRepository implements IContentRepository {
       where: { id },
       include: INCLUDE_OWNERS,
     });
+  }
+  updateById(id: number, data: IUpdateContentDto): Promise<IContent> {
+    return this.prisma.content.update({
+      data,
+      where: { id },
+      include: INCLUDE_OWNERS,
+    });
+  }
+
+  async getOwnerId(id: number): Promise<string> {
+    const { ownerId } = await this.prisma.content.findUniqueOrThrow({
+      select: { ownerId: true },
+      where: { id },
+    });
+    return ownerId;
   }
 
   create(ownerId: string, content: ICreateContent): Promise<IContent> {
