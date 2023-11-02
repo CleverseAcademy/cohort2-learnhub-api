@@ -15,6 +15,12 @@ export default class ContentRepository implements IContentRepository {
     this.prisma = prisma;
   }
 
+  getAll(): Promise<IContent[]> {
+    return this.prisma.content.findMany({
+      include: INCLUDE_OWNERS,
+    });
+  }
+
   create(ownerId: string, content: ICreateContent): Promise<IContent> {
     return this.prisma.content.create({
       data: {

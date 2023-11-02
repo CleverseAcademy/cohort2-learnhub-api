@@ -26,4 +26,5 @@ export interface IUserRepository {
 
 export interface IContentRepository {
   create(ownerId: string, content: ICreateContent): Promise<IContent>;
+  getAll(): Promise<IContent[]>;
 }

@@ -25,4 +25,5 @@ export interface IContentHandler {
     undefined,
     AuthStatus
   >;
+  getAll: RequestHandler<{}, { data: IContentDto[] }>;
 }

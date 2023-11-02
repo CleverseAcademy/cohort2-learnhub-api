@@ -4,7 +4,7 @@ import { IContentDto, ICreateContentDto } from "../dto/content";
 import { IErrorDto } from "../dto/error";
 import { AuthStatus } from "../middleware/jwt";
 import { IContentRepository } from "../repositories";
-import mapper from "../utils/contentMapper";
+import mapper from "../utils/content.mapper";
 import { getOEmbedInfo } from "../utils/oembed";
 
 export default class ContentHandler implements IContentHandler {
@@ -13,6 +13,13 @@ export default class ContentHandler implements IContentHandler {
     this.repo = repo;
   }
 
+  getAll: RequestHandler<{}, { data: IContentDto[] }> = async (req, res) => {
+    const contents = await this.repo.getAll();
+
+    const mappedToDto = contents.map<IContentDto>(mapper);
+
+    return res.status(200).json({ data: mappedToDto }).end();
+  };
   create: RequestHandler<
     {},
     IContentDto | IErrorDto,
