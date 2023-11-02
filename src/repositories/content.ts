@@ -1,8 +1,16 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { IContent, IContentRepository, ICreateContent } from ".";
+import { DEFAULT_USER_FIELDS } from "./user";
+
+const INCLUDE_OWNERS: Prisma.ContentInclude = {
+  User: {
+    select: DEFAULT_USER_FIELDS,
+  },
+};
 
 export default class ContentRepository implements IContentRepository {
   private prisma: PrismaClient;
+
   constructor(prisma: PrismaClient) {
     this.prisma = prisma;
   }
@@ -15,16 +23,7 @@ export default class ContentRepository implements IContentRepository {
           connect: { id: ownerId },
         },
       },
-      include: {
-        User: {
-          select: {
-            id: true,
-            username: true,
-            name: true,
-            registeredAt: true,
-          },
-        },
-      },
+      include: INCLUDE_OWNERS,
     });
   }
 }

@@ -14,6 +14,7 @@ export interface ICreateContent
 export interface IContent extends Content {
   User: IUser;
 }
+
 // export interface IUserExtended
 //   extends Pick<User, "id" | "name" | "username" | "registeredAt"> {}
 
