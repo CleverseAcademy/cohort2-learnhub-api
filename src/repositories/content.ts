@@ -28,6 +28,14 @@ export default class ContentRepository implements IContentRepository {
       include: INCLUDE_OWNERS,
     });
   }
+
+  deleteById(id: number): Promise<IContent> {
+    return this.prisma.content.delete({
+      where: { id },
+      include: INCLUDE_OWNERS,
+    });
+  }
+
   updateById(id: number, data: IUpdateContentDto): Promise<IContent> {
     return this.prisma.content.update({
       data,
