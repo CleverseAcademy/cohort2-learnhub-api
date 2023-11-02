@@ -20,6 +20,22 @@ export default class ContentHandler implements IContentHandler {
 
     return res.status(200).json({ data: mappedToDto }).end();
   };
+
+  getById: RequestHandler<{ id: string }, IContentDto | IErrorDto> = async (
+    req,
+    res
+  ) => {
+    const { id } = req.params;
+
+    const numericId = Number(id);
+    if (isNaN(numericId))
+      return res.status(400).json({ message: "id is invalid" }).end();
+
+    const content = await this.repo.getById(numericId);
+
+    return res.status(200).json(mapper(content)).end();
+  };
+
   create: RequestHandler<
     {},
     IContentDto | IErrorDto,

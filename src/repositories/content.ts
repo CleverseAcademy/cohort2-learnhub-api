@@ -21,6 +21,13 @@ export default class ContentRepository implements IContentRepository {
     });
   }
 
+  getById(id: number): Promise<IContent> {
+    return this.prisma.content.findUniqueOrThrow({
+      where: { id },
+      include: INCLUDE_OWNERS,
+    });
+  }
+
   create(ownerId: string, content: ICreateContent): Promise<IContent> {
     return this.prisma.content.create({
       data: {
