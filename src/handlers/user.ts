@@ -2,13 +2,18 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { RequestHandler } from "express";
 import { sign } from "jsonwebtoken";
 import { IUserHandler } from ".";
-import { JWT_SECRET, UNIQUE_CONSTRAINT_VIOLATION } from "../const";
+import {
+  JWT_SECRET,
+  REQUIRED_RECORD_NOT_FOUND,
+  UNIQUE_CONSTRAINT_VIOLATION,
+} from "../const";
 import { ICredentialDto, ILoginDto } from "../dto/auth";
 import { IErrorDto } from "../dto/error";
 import { ICreateUserDto, IUserDto } from "../dto/user";
 import { AuthStatus } from "../middleware/jwt";
 import { IUserRepository } from "../repositories";
 import { hashPassword, verifyPassword } from "../utils/bcrypt";
+import mapToDto from "../utils/user.mapper";
 
 export default class UserHandler implements IUserHandler {
   private repo: IUserRepository;
@@ -130,6 +135,26 @@ export default class UserHandler implements IUserHandler {
           message: `Internal Server Error`,
         })
         .end();
+    }
+  };
+
+  public getInfoByUsername: RequestHandler<
+    { username: string },
+    IUserDto | IErrorDto
+  > = async (req, res) => {
+    const { username } = req.params;
+    try {
+      const userInfo = await this.repo.findByUsername(username);
+
+      return res.status(200).json(mapToDto(userInfo)).end();
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === REQUIRED_RECORD_NOT_FOUND
+      )
+        return res.status(404).json({ message: `User not found` }).end();
+
+      return res.status(500).json({ message: `Internal Server Error` }).end();
     }
   };
 }
