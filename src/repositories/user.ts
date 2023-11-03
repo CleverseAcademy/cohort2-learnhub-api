@@ -28,4 +28,19 @@ export default class UserRepository implements IUserRepository {
       where: { id },
     });
   }
+
+  public async updateLastLogin(id: string, ts?: Date): Promise<User> {
+    return await this.prisma.user.update({
+      data: {
+        lastLogin: ts ?? new Date(),
+      },
+      where: { id },
+    });
+  }
+
+  public async getFullInfoById(id: string): Promise<User> {
+    return await this.prisma.user.findUniqueOrThrow({
+      where: { id },
+    });
+  }
 }
