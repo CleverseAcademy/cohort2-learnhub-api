@@ -2,7 +2,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { RequestHandler } from "express";
 import { sign } from "jsonwebtoken";
 import { IUserHandler } from ".";
-import { JWT_SECRET } from "../const";
+import { JWT_SECRET, UNIQUE_CONSTRAINT_VIOLATION } from "../const";
 import { ICredentialDto, ILoginDto } from "../dto/auth";
 import { IErrorDto } from "../dto/error";
 import { ICreateUserDto, IUserDto } from "../dto/user";
@@ -115,7 +115,7 @@ export default class UserHandler implements IUserHandler {
     } catch (error) {
       if (
         error instanceof PrismaClientKnownRequestError &&
-        error.code === "P2002"
+        error.code === UNIQUE_CONSTRAINT_VIOLATION
       ) {
         return res
           .status(500)

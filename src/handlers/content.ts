@@ -1,5 +1,7 @@
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { RequestHandler } from "express";
 import { IContentHandler } from ".";
+import { REQUIRED_RECORD_NOT_FOUND } from "../const";
 import {
   IContentDto,
   ICreateContentDto,
@@ -35,8 +37,23 @@ export default class ContentHandler implements IContentHandler {
     if (isNaN(numericId))
       return res.status(400).json({ message: "id is invalid" }).end();
 
-    const content = await this.repo.getById(numericId);
-    return res.status(200).json(mapToDto(content)).end();
+    try {
+      const content = await this.repo.getById(numericId);
+
+      return res.status(200).json(mapToDto(content)).end();
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === REQUIRED_RECORD_NOT_FOUND
+      )
+        return res
+          .status(404)
+          .json({
+            message: error.message,
+          })
+          .end();
+      return res.status(500).end();
+    }
   };
 
   updateById: RequestHandler<
@@ -54,16 +71,28 @@ export default class ContentHandler implements IContentHandler {
     if (isNaN(numericId))
       return res.status(400).json({ message: "id is invalid" }).end();
 
-    const ownerId = await this.repo.getOwnerId(numericId);
+    try {
+      const ownerId = await this.repo.getOwnerId(numericId);
 
-    if (ownerId !== res.locals.user.id)
-      return res
-        .status(403)
-        .json({ message: "You're not the owner of this content" })
-        .end();
+      if (ownerId !== res.locals.user.id)
+        return res
+          .status(403)
+          .json({ message: "You're not the owner of this content" })
+          .end();
 
-    const content = await this.repo.updateById(numericId, { comment, rating });
-    return res.status(200).json(mapToDto(content)).end();
+      const content = await this.repo.updateById(numericId, {
+        comment,
+        rating,
+      });
+
+      return res.status(200).json(mapToDto(content)).end();
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === REQUIRED_RECORD_NOT_FOUND)
+          return res.status(410).json({ message: error.message }).end();
+      }
+      return res.status(500).json({ message: "Internal Server Error" }).end();
+    }
   };
 
   deleteById: RequestHandler<
@@ -80,16 +109,25 @@ export default class ContentHandler implements IContentHandler {
     if (isNaN(numericId))
       return res.status(400).json({ message: "id is invalid" }).end();
 
-    const ownerId = await this.repo.getOwnerId(numericId);
+    try {
+      const ownerId = await this.repo.getOwnerId(numericId);
 
-    if (ownerId !== res.locals.user.id)
-      return res
-        .status(403)
-        .json({ message: "You're not the owner of this content" });
+      if (ownerId !== res.locals.user.id)
+        return res
+          .status(403)
+          .json({ message: "You're not the owner of this content" })
+          .end();
 
-    const content = await this.repo.deleteById(numericId);
+      const content = await this.repo.deleteById(numericId);
 
-    return res.status(200).json(mapToDto(content)).end();
+      return res.status(200).json(mapToDto(content)).end();
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === REQUIRED_RECORD_NOT_FOUND)
+          return res.status(410).json({ message: error.message }).end();
+      }
+      return res.status(500).json({ message: "Internal Server Error" }).end();
+    }
   };
 
   create: RequestHandler<
