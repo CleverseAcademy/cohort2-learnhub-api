@@ -53,12 +53,18 @@ export default class UserHandler implements IUserHandler {
         if (!verifyPassword(plainPassword, password))
           throw new Error("Invalid username or password");
 
-        const accessToken = sign({ id }, JWT_SECRET, {
+        const now = new Date();
+        const jwtid = btoa(hashPassword(`${+now}${password}`, 8));
+
+        const accessToken = sign({ id, username }, JWT_SECRET, {
+          jwtid,
           algorithm: "HS512",
           expiresIn: "12h",
           issuer: "learnhub-api",
           subject: "user-credential",
         });
+
+        await this.repo.updateLastLogin(id, now);
 
         return res
           .status(200)

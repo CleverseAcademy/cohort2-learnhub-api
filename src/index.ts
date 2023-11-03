@@ -18,7 +18,7 @@ const contentRepo: IContentRepository = new ContentRepository(clnt);
 const userHandler: IUserHandler = new UserHandler(userRepo);
 const contentHandler: IContentHandler = new ContentHandler(contentRepo);
 
-const jwtMiddleware = new JWTMiddleware();
+const jwtMiddleware = new JWTMiddleware(userRepo);
 
 app.use(express.json());
 

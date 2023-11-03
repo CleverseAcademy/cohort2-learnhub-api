@@ -34,4 +34,12 @@ export default class UserRepository implements IUserRepository {
       where: { id },
     });
   }
+
+  public async updateLastLogin(id: string, ts: Date): Promise<IUser> {
+    return await this.prisma.user.update({
+      data: { lastLogin: ts },
+      select: DEFAULT_USER_FIELDS,
+      where: { id },
+    });
+  }
 }
