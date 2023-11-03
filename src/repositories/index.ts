@@ -23,6 +23,8 @@ export interface IUserRepository {
   create(user: ICreateUserDto): Promise<IUser>;
   findByUsername(username: string): Promise<User>;
   findById(id: string): Promise<IUser>;
+  getFullInfoById(id: string): Promise<User>;
+  updateLastLogin(id: string, ts?: Date): Promise<User>;
 }
 
 export interface IContentRepository {

@@ -1,15 +1,21 @@
 import { RequestHandler } from "express";
 import { JsonWebTokenError, JwtPayload, verify } from "jsonwebtoken";
 import { JWT_SECRET } from "../const";
+import { IUserRepository } from "../repositories";
+import { verifyPassword } from "../utils/bcrypt";
 
 export interface AuthStatus {
   user: { id: string };
 }
 
 export default class JWTMiddleware {
-  constructor() {}
+  private repo: IUserRepository;
 
-  auth: RequestHandler<unknown, unknown, unknown, unknown, AuthStatus> = (
+  constructor(repo: IUserRepository) {
+    this.repo = repo;
+  }
+
+  auth: RequestHandler<unknown, unknown, unknown, unknown, AuthStatus> = async (
     req,
     res,
     next
@@ -17,7 +23,12 @@ export default class JWTMiddleware {
     try {
       const token = req.header("Authorization")!.replace("Bearer ", "").trim();
 
-      const { id } = verify(token, JWT_SECRET) as JwtPayload;
+      const { id, jti } = verify(token, JWT_SECRET) as JwtPayload;
+
+      const { password, lastLogin } = await this.repo.getFullInfoById(id);
+
+      if (!verifyPassword(`${lastLogin.getTime()}.${password}`, atob(jti!)))
+        throw new JsonWebTokenError("jti property is invalid");
 
       res.locals = {
         user: {

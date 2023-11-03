@@ -16,6 +16,7 @@ model User {
   username     String    @unique
   password     String
   registeredAt DateTime  @default(now())
+  lastLogin    DateTime  @default("1970-01-01T00:00:00Z")
   Content      Content[]
 }
 
