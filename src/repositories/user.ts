@@ -34,4 +34,27 @@ export default class UserRepository implements IUserRepository {
       where: { id },
     });
   }
+
+  public async updateLastLogin(id: string, ts?: Date): Promise<User> {
+    let lastLoginTimestamp = ts;
+    if (!lastLoginTimestamp) {
+      const dbTimestamp: [{ current_timestamp: Date }] = await this.prisma
+        .$queryRaw`SELECT CURRENT_TIMESTAMP;`;
+
+      lastLoginTimestamp = dbTimestamp[0].current_timestamp;
+    }
+
+    return await this.prisma.user.update({
+      data: {
+        lastLogin: lastLoginTimestamp,
+      },
+      where: { id },
+    });
+  }
+
+  public async getFullInfoById(id: string): Promise<User> {
+    return await this.prisma.user.findUniqueOrThrow({
+      where: { id },
+    });
+  }
 }

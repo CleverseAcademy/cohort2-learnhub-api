@@ -1,7 +1,11 @@
 import { compareSync, genSaltSync, hashSync } from "bcryptjs";
+import { DEFAULT_BCRYPT_NUMBER_OF_ROUNDS } from "../const";
 
-export const hashPassword = (plaintext: string): string => {
-  const salt = genSaltSync(12);
+export const hashPassword = (
+  plaintext: string,
+  round: number = DEFAULT_BCRYPT_NUMBER_OF_ROUNDS
+): string => {
+  const salt = genSaltSync(round);
 
   return hashSync(plaintext, salt);
 };
