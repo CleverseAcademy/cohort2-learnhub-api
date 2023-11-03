@@ -40,7 +40,7 @@ app.use("/auth", authRouter);
 
 authRouter.post("/login", userHandler.login);
 
-authRouter.get("/me", jwtMiddleware.auth, userHandler.selfcheck);
+authRouter.get("/me", jwtMiddleware.auth, userHandler.getPersonalInfo);
 
 const contentRouter = express.Router();
 

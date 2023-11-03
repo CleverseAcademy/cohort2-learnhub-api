@@ -21,7 +21,7 @@ export default class UserHandler implements IUserHandler {
   constructor(repo: IUserRepository) {
     this.repo = repo;
   }
-  public selfcheck: RequestHandler<
+  public getPersonalInfo: RequestHandler<
     {},
     IUserDto | IErrorDto,
     unknown,
