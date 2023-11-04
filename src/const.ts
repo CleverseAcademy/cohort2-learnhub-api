@@ -19,3 +19,7 @@ export const DEFAULT_USER_SELECT: Prisma.UserSelect = {
 export const REQUIRED_RECORD_NOT_FOUND = "P2025";
 
 export const UNIQUE_CONSTRAINT_VIOLATION = "P2002";
+
+export const DEFAULT_LAST_LOGIN_TIMESTAMP = new Date(
+  "1970-01-01T10:30:00+07:00"
+);
