@@ -1,27 +1,30 @@
 import axios from "axios";
-import { OEmbedResponseDto } from "../dto/oembed";
+import { OEmbedError, OEmbedResponse } from "../dto/oembed";
 
-export const getOEmbedInfo = async (
-  videoUrl: string
-): Promise<
-  Pick<
-    OEmbedResponseDto,
-    "title" | "url" | "thumbnail_url" | "author_name" | "author_url"
-  >
-> => {
-  const res = await axios.get<OEmbedResponseDto>(
+export interface VideoMetadata {
+  authorName: string;
+  authorUrl: string;
+  thumbnailUrl: string;
+  title: string;
+}
+
+const isError = (data: OEmbedResponse | OEmbedError): data is OEmbedError =>
+  Object.keys(data).includes("error");
+
+export default async (videoUrl: string): Promise<VideoMetadata> => {
+  const response = await axios.get<OEmbedResponse | OEmbedError>(
     `https://noembed.com/embed?url=${videoUrl}`
   );
 
-  const { title, url, thumbnail_url, author_name, author_url, error } =
-    res.data;
-  if (error) throw new URIError("Invalid video link");
+  const oembedData = response.data;
+  if (isError(oembedData)) throw new URIError("Invalid video link");
+
+  const { author_name, author_url, thumbnail_url, title } = oembedData;
 
   return {
+    authorName: author_name,
+    authorUrl: author_url,
+    thumbnailUrl: thumbnail_url,
     title,
-    url,
-    thumbnail_url,
-    author_name,
-    author_url,
   };
 };
