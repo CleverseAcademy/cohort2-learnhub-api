@@ -12,6 +12,7 @@ import { AuthStatus } from "../middleware/jwt";
 export interface IUserHandler {
   registration: RequestHandler<{}, IUserDto | IErrorDto, ICreateUserDto>;
   login: RequestHandler<{}, ICredentialDto | IErrorDto, ILoginDto>;
+  logout: RequestHandler<{}, IErrorDto, undefined, undefined, AuthStatus>;
   getPersonalInfo: RequestHandler<
     {},
     IUserDto | IErrorDto,
