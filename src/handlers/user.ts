@@ -3,6 +3,7 @@ import { RequestHandler } from "express";
 import { sign } from "jsonwebtoken";
 import { IUserHandler } from ".";
 import {
+  DEFAULT_LAST_LOGIN_TIMESTAMP,
   JWT_SECRET,
   REQUIRED_RECORD_NOT_FOUND,
   UNIQUE_CONSTRAINT_VIOLATION,
@@ -80,6 +81,37 @@ export default class UserHandler implements IUserHandler {
           .end();
       }
     };
+
+  public logout: RequestHandler<
+    {},
+    IErrorDto,
+    undefined,
+    undefined,
+    AuthStatus
+  > = async (req, res) => {
+    try {
+      await this.repo.updateLastLogin(
+        res.locals.user.id,
+        DEFAULT_LAST_LOGIN_TIMESTAMP
+      );
+
+      return res
+        .status(200)
+        .json({
+          message: "You've been logged out",
+        })
+        .end();
+    } catch (error) {
+      console.error(error);
+
+      return res
+        .status(500)
+        .json({
+          message: "Internal Server Error",
+        })
+        .end();
+    }
+  };
 
   public registration: RequestHandler<
     {},
