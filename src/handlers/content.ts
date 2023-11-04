@@ -11,7 +11,7 @@ import { IErrorDto } from "../dto/error";
 import { AuthStatus } from "../middleware/jwt";
 import { IContentRepository } from "../repositories";
 import mapper from "../utils/content.mapper";
-import { getOEmbedInfo } from "../utils/oembed";
+import getOEmbedInfo from "../utils/oembed";
 
 export default class ContentHandler implements IContentHandler {
   private repo: IContentRepository;
@@ -145,16 +145,17 @@ export default class ContentHandler implements IContentHandler {
         .json({ message: "rating is out of range 0-5" })
         .end();
 
-    const { author_name, author_url, thumbnail_url, title } =
-      await getOEmbedInfo(videoUrl);
+    const { authorName, authorUrl, thumbnailUrl, title } = await getOEmbedInfo(
+      videoUrl
+    );
 
     const content = await this.repo.create(res.locals.user.id, {
       rating,
       videoUrl,
       comment,
-      creatorName: author_name,
-      creatorUrl: author_url,
-      thumbnailUrl: thumbnail_url,
+      creatorName: authorName,
+      creatorUrl: authorUrl,
+      thumbnailUrl: thumbnailUrl,
       videoTitle: title,
     });
 
