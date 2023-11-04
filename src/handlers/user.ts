@@ -14,6 +14,7 @@ import { ICreateUserDto, IUserDto } from "../dto/user";
 import { AuthStatus } from "../middleware/jwt";
 import { IUserRepository } from "../repositories";
 import { hashPassword, verifyPassword } from "../utils/bcrypt";
+import { b64sha256 } from "../utils/sha";
 import mapToDto from "../utils/user.mapper";
 
 export default class UserHandler implements IUserHandler {
@@ -55,10 +56,8 @@ export default class UserHandler implements IUserHandler {
           throw new Error("Invalid username or password");
 
         const { lastLogin } = await this.repo.updateLastLogin(id);
-
-        const jwtid = btoa(
-          hashPassword(`${lastLogin.getTime()}.${password}`, 8)
-        );
+        const jtiChecksum = b64sha256(`${lastLogin.getTime()}.${password}`);
+        const jwtid = btoa(hashPassword(jtiChecksum, 8));
 
         const accessToken = sign({ id }, JWT_SECRET, {
           jwtid,

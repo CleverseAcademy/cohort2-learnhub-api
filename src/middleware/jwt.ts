@@ -3,6 +3,7 @@ import { JsonWebTokenError, JwtPayload, verify } from "jsonwebtoken";
 import { JWT_SECRET } from "../const";
 import { IUserRepository } from "../repositories";
 import { verifyPassword } from "../utils/bcrypt";
+import { b64sha256 } from "../utils/sha";
 
 export interface AuthStatus {
   user: { id: string };
@@ -27,7 +28,8 @@ export default class JWTMiddleware {
 
       const { password, lastLogin } = await this.repo.getFullInfoById(id);
 
-      if (!verifyPassword(`${lastLogin.getTime()}.${password}`, atob(jti!)))
+      const checksum = b64sha256(`${lastLogin.getTime()}.${password}`);
+      if (!verifyPassword(checksum, atob(jti!)))
         throw new JsonWebTokenError("jti property is invalid");
 
       res.locals = {
