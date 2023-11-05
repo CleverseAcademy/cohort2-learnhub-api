@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import "dotenv/config";
 
 const { JWT_SECRET: ENV_JWT_SECRET } = process.env;
 
