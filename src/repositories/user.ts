@@ -1,5 +1,6 @@
 import { PrismaClient, User } from "@prisma/client";
-import { IUser, IUserRepository } from ".";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { IBlacklist, IUser, IUserRepository } from ".";
 import { DEFAULT_USER_SELECT } from "../const";
 import { ICreateUserDto } from "../dto/user";
 
@@ -27,5 +28,30 @@ export default class UserRepository implements IUserRepository {
       select: DEFAULT_USER_SELECT,
       where: { id },
     });
+  }
+
+  public async addToBlacklist(token: string): Promise<IBlacklist> {
+    return await this.prisma.blacklist.create({
+      data: { token },
+    });
+  }
+
+  public async isAlreadyBlacklisted(token: string): Promise<boolean> {
+    try {
+      await this.prisma.blacklist.findUniqueOrThrow({
+        where: { token },
+      });
+
+      return true;
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === "P2025"
+      )
+        return false;
+
+      console.error(error);
+      throw error;
+    }
   }
 }

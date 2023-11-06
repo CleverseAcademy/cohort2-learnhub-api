@@ -6,6 +6,7 @@ import {
   JWT_SECRET,
   REQUIRED_RECORD_NOT_FOUND,
   UNIQUE_CONSTRAINT_VIOLATION,
+  getAuthToken,
 } from "../const";
 import { ICredentialDto, ILoginDto } from "../dto/auth";
 import { IErrorDto } from "../dto/error";
@@ -73,6 +74,45 @@ export default class UserHandler implements IUserHandler {
           .end();
       }
     };
+
+  public logout: RequestHandler<
+    {},
+    IErrorDto,
+    undefined,
+    undefined,
+    AuthStatus
+  > = async (req, res) => {
+    try {
+      const authHeader = req.header("Authorization");
+
+      if (!authHeader)
+        return res
+          .status(400)
+          .json({
+            message: "Authorization header is expected",
+          })
+          .end();
+
+      const authToken = getAuthToken(authHeader);
+      await this.repo.addToBlacklist(authToken);
+
+      return res
+        .status(200)
+        .json({
+          message: "You've been logged out",
+        })
+        .end();
+    } catch (error) {
+      console.error(error);
+
+      return res
+        .status(500)
+        .json({
+          message: "Internal Server Error",
+        })
+        .end();
+    }
+  };
 
   public registration: RequestHandler<
     {},
