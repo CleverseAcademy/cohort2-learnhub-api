@@ -17,3 +17,6 @@ export const DEFAULT_USER_SELECT: Prisma.UserSelect = {
 export const REQUIRED_RECORD_NOT_FOUND = "P2025";
 
 export const UNIQUE_CONSTRAINT_VIOLATION = "P2002";
+
+export const getAuthToken = (authorizationHeader: string) =>
+  authorizationHeader.replace("Bearer ", "").trim();

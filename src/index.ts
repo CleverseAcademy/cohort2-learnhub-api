@@ -18,7 +18,7 @@ const contentRepo: IContentRepository = new ContentRepository(clnt);
 const userHandler: IUserHandler = new UserHandler(userRepo);
 const contentHandler: IContentHandler = new ContentHandler(contentRepo);
 
-const jwtMiddleware = new JWTMiddleware();
+const jwtMiddleware = new JWTMiddleware(userRepo);
 
 app.use(express.json());
 
@@ -39,7 +39,7 @@ const authRouter = express.Router();
 app.use("/auth", authRouter);
 
 authRouter.post("/login", userHandler.login);
-
+authRouter.get("/logout", jwtMiddleware.auth, userHandler.logout);
 authRouter.get("/me", jwtMiddleware.auth, userHandler.getPersonalInfo);
 
 const contentRouter = express.Router();

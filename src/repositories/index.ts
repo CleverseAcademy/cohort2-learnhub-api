@@ -1,4 +1,4 @@
-import { Content, User } from "@prisma/client";
+import { Blacklist, Content, User } from "@prisma/client";
 import { IUpdateContentDto } from "../dto/content";
 import { ICreateUserDto } from "../dto/user";
 
@@ -19,10 +19,14 @@ export interface IContent extends Omit<Content, "ownerId"> {
   User: IUser;
 }
 
+export interface IBlacklist extends Blacklist {}
+
 export interface IUserRepository {
   create(user: ICreateUserDto): Promise<IUser>;
   findByUsername(username: string): Promise<User>;
   findById(id: string): Promise<IUser>;
+  addToBlacklist(token: string): Promise<IBlacklist>;
+  isAlreadyBlacklisted(token: string): Promise<boolean>;
 }
 
 export interface IContentRepository {
