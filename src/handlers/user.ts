@@ -1,6 +1,6 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { RequestHandler } from "express";
-import { sign } from "jsonwebtoken";
+import { JwtPayload, sign, verify } from "jsonwebtoken";
 import { IUserHandler } from ".";
 import {
   JWT_SECRET,
@@ -94,7 +94,16 @@ export default class UserHandler implements IUserHandler {
           .end();
 
       const authToken = getAuthToken(authHeader);
-      await this.repo.addToBlacklist(authToken);
+      const { exp } = verify(authToken, JWT_SECRET) as JwtPayload;
+      if (!exp)
+        return res
+          .status(400)
+          .json({
+            message: "JWT is invalid",
+          })
+          .end();
+
+      await this.repo.addToBlacklist(authToken, new Date(exp * 1000));
 
       return res
         .status(200)

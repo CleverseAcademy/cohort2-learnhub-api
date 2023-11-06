@@ -30,9 +30,9 @@ export default class UserRepository implements IUserRepository {
     });
   }
 
-  public async addToBlacklist(token: string): Promise<IBlacklist> {
+  public async addToBlacklist(token: string, exp?: Date): Promise<IBlacklist> {
     return await this.prisma.blacklist.create({
-      data: { token },
+      data: { token, exp },
     });
   }
 
