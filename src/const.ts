@@ -13,3 +13,7 @@ export const DEFAULT_USER_SELECT: Prisma.UserSelect = {
   username: true,
   registeredAt: true,
 };
+
+export const REQUIRED_RECORD_NOT_FOUND = "P2025";
+
+export const UNIQUE_CONSTRAINT_VIOLATION = "P2002";

@@ -1,6 +1,7 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { RequestHandler } from "express";
-import { IContentHandler } from ".";
+import { IContentHandler, ID } from ".";
+import { REQUIRED_RECORD_NOT_FOUND } from "../const";
 import { IContentDto, IContentsDto, ICreateContentDto } from "../dto/content";
 import { IErrorDto } from "../dto/error";
 import { AuthStatus } from "../middleware/jwt";
@@ -62,10 +63,7 @@ export default class ContentHandler implements IContentHandler {
     }
   };
 
-  getById: RequestHandler<{ id: string }, IContentDto | IErrorDto> = async (
-    req,
-    res
-  ) => {
+  getById: RequestHandler<ID, IContentDto | IErrorDto> = async (req, res) => {
     const { id } = req.params;
     const numericId = Number(id);
 
@@ -83,7 +81,7 @@ export default class ContentHandler implements IContentHandler {
   };
 
   deleteById: RequestHandler<
-    { id: string },
+    ID,
     IContentDto | IErrorDto,
     undefined,
     undefined,
@@ -111,7 +109,7 @@ export default class ContentHandler implements IContentHandler {
 
       if (
         error instanceof PrismaClientKnownRequestError &&
-        error.code === "P2025"
+        error.code === REQUIRED_RECORD_NOT_FOUND
       )
         return res.status(410).json({ message: "Content not found" }).end();
 

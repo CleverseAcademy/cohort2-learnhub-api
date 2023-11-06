@@ -18,6 +18,10 @@ export interface IUserHandler {
   getByUsername: RequestHandler<{ username: string }, IUserDto | IErrorDto>;
 }
 
+export interface ID {
+  id: string;
+}
+
 export interface IContentHandler {
   create: RequestHandler<
     {},
@@ -27,9 +31,9 @@ export interface IContentHandler {
     AuthStatus
   >;
   getAll: RequestHandler<{}, IContentsDto>;
-  getById: RequestHandler<{ id: string }, IContentDto | IErrorDto>;
+  getById: RequestHandler<ID, IContentDto | IErrorDto>;
   deleteById: RequestHandler<
-    { id: string },
+    ID,
     IContentDto | IErrorDto,
     undefined,
     undefined,
