@@ -32,6 +32,7 @@ const userRouter = express.Router();
 app.use("/user", userRouter);
 
 userRouter.post("/", userHandler.registration);
+userRouter.get("/:username", userHandler.getByUsername);
 
 const authRouter = express.Router();
 

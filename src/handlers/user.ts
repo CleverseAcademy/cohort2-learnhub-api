@@ -9,6 +9,7 @@ import { ICreateUserDto, IUserDto } from "../dto/user";
 import { AuthStatus } from "../middleware/jwt";
 import { IUserRepository } from "../repositories";
 import { hashPassword, verifyPassword } from "../utils/bcrypt";
+import mapToDto from "../utils/user.mapper";
 
 export default class UserHandler implements IUserHandler {
   private repo: IUserRepository;
@@ -24,17 +25,9 @@ export default class UserHandler implements IUserHandler {
     AuthStatus
   > = async (req, res) => {
     try {
-      const { registeredAt, ...others } = await this.repo.findById(
-        res.locals.user.id
-      );
+      const userInfo = await this.repo.findById(res.locals.user.id);
 
-      return res
-        .status(200)
-        .json({
-          ...others,
-          registeredAt: registeredAt.toISOString(),
-        })
-        .end();
+      return res.status(200).json(mapToDto(userInfo)).end();
     } catch (error) {
       console.error(error);
 
@@ -92,42 +85,61 @@ export default class UserHandler implements IUserHandler {
       return res.status(400).json({ message: "password is invalid" }).end();
 
     try {
-      const {
-        id: registeredId,
-        name: registeredName,
-        registeredAt,
-        username: registeredUsername,
-      } = await this.repo.create({
+      const created = await this.repo.create({
         name,
         username,
         password: hashPassword(plainPassword),
       });
 
-      return res
-        .status(201)
-        .json({
-          id: registeredId,
-          name: registeredName,
-          registeredAt: `${registeredAt}`,
-          username: registeredUsername,
-        })
-        .end();
+      return res.status(201).json(mapToDto(created)).end();
     } catch (error) {
       if (
         error instanceof PrismaClientKnownRequestError &&
         error.code === "P2002"
-      ) {
+      )
         return res
-          .status(500)
+          .status(400)
           .json({
             message: `name is invalid`,
           })
           .end();
-      }
+
       return res
         .status(500)
         .json({
           message: `Internal Server Error`,
+        })
+        .end();
+    }
+  };
+
+  public getByUsername: RequestHandler<
+    { username: string },
+    IUserDto | IErrorDto
+  > = async (req, res) => {
+    try {
+      const { password, ...userInfo } = await this.repo.findByUsername(
+        req.params.username
+      );
+
+      return res.status(200).json(mapToDto(userInfo)).end();
+    } catch (error) {
+      console.error(error);
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === "P2025"
+      )
+        return res
+          .status(404)
+          .json({
+            message: "No user found",
+          })
+          .end();
+
+      return res
+        .status(500)
+        .json({
+          message: "Internal Server Error",
         })
         .end();
     }
