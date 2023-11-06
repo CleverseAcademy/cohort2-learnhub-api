@@ -35,5 +35,8 @@ model Content {
 }
 
 model Blacklist {
-  token String @unique @db.VarChar(512)
+  token String    @unique @db.VarChar(512)
+  exp   DateTime?
+
+  @@index([exp(sort: Asc)], type: BTree)
 }
