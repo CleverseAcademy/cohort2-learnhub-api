@@ -7,6 +7,11 @@ export interface ICreateContentDto {
   rating: number;
 }
 
+export interface IUpdateContentDto {
+  comment: string;
+  rating: number;
+}
+
 export interface IContentDto
   extends Omit<Content, "ownerId" | "createdAt" | "updatedAt"> {
   createdAt: string;

@@ -49,6 +49,7 @@ app.use("/content", contentRouter);
 contentRouter.get("/", contentHandler.getAll);
 contentRouter.get("/:id", contentHandler.getById);
 contentRouter.post("/", jwtMiddleware.auth, contentHandler.create);
+contentRouter.patch("/:id", jwtMiddleware.auth, contentHandler.updateById);
 contentRouter.delete("/:id", jwtMiddleware.auth, contentHandler.deleteById);
 
 app.listen(PORT, () => {
