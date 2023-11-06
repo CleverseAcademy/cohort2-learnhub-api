@@ -28,4 +28,5 @@ export interface IContentRepository {
   create(ownerId: string, content: ICreateContent): Promise<IContent>;
   getAll(): Promise<IContent[]>;
   getById(id: number): Promise<IContent>;
+  deleteById(id: number): Promise<IContent>;
 }

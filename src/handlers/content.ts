@@ -1,3 +1,4 @@
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { RequestHandler } from "express";
 import { IContentHandler } from ".";
 import { IContentDto, IContentsDto, ICreateContentDto } from "../dto/content";
@@ -79,5 +80,51 @@ export default class ContentHandler implements IContentHandler {
     const content = await this.repo.getById(numericId);
 
     return res.status(200).json(mapToDto(content)).end();
+  };
+
+  deleteById: RequestHandler<
+    { id: string },
+    IContentDto | IErrorDto,
+    undefined,
+    undefined,
+    AuthStatus
+  > = async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const numericId = Number(id);
+
+      if (isNaN(numericId)) throw new TypeError("Id is not number");
+
+      const {
+        User: { id: ownerId },
+      } = await this.repo.getById(numericId);
+
+      if (ownerId !== res.locals.user.id)
+        throw new Error("Requested content is forbidden");
+
+      const deletedContent = await this.repo.deleteById(numericId);
+
+      return res.status(200).json(mapToDto(deletedContent)).end();
+    } catch (error) {
+      console.log(error);
+
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === "P2025"
+      )
+        return res.status(410).json({ message: "Content not found" }).end();
+
+      if (error instanceof TypeError)
+        return res.status(400).json({ message: error.message }).end();
+
+      if (error instanceof Error)
+        return res
+          .status(403)
+          .json({ message: `${error.message}` })
+          .end();
+
+      return res.status(500).send({ message: "Internal Server Error" }).end();
+    }
   };
 }
