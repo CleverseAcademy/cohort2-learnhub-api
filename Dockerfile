@@ -14,9 +14,17 @@ RUN npm install -g pnpm@${PNPM_VERSION}
 
 WORKDIR /app
 
-COPY . .
+COPY package.json pnpm-lock.yaml tsconfig.json ./
 
-RUN pnpm install --frozen-lockfile && pnpm prisma generate && pnpm tsc
+RUN pnpm install --frozen-lockfile
+
+COPY prisma/ ./prisma/
+
+RUN pnpm prisma generate
+
+COPY src/ ./src/
+
+RUN pnpm tsc
 
 EXPOSE $SVC_PORT
 
