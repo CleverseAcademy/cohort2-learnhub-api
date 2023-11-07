@@ -2,4 +2,5 @@ node_modules
 .env
 dist/
 .vscode/
+**/secrets
 **bcrypt-demo**
