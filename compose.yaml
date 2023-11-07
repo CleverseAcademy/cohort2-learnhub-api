@@ -1,0 +1,32 @@
+version: "3.8"
+services:
+  server:
+    build:
+      context: .
+      args:
+        SVC_PORT: "8000"
+    environment:
+      DATABASE_URL: postgresql://postgres:academy@db:5432/postgres?schema=public
+      JWT_SECRET: mhJPVoYhu00sRxS4Hus9nKHKQiyq6bsXaqRDSbl6X6WTkILe1Xc7nq9WbyoStviUnOckHpUJpyOtYE50WUcv2++7ot+bDkZDrS3kMB9ZV/tFcdQnj4nPqpx+9OoBDEk4ymRAQq+t5u7h/ZDNB2N8sMcAmRu9m5QnHZjxUuNXH6IK
+    ports:
+      - 8000:8000
+    # `depends_on` tells Docker Compose to start the database before your application.
+    depends_on:
+      db:
+        condition: service_started
+  db:
+    image: postgres:15
+    restart: always
+    user: postgres
+    volumes:
+      # The `insecured-db-data` volume persists the database data between container restarts.
+      - insecured-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=academy
+    expose:
+      - 5432
+    ports:
+      - 5432:5432
+volumes:
+  # The `insecured-db-data` volume persists the database data between container restarts.
+  insecured-db-data:
