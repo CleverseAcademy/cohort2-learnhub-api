@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import cors from "cors";
 import express from "express";
 import { IContentHandler, IUserHandler } from "./handlers";
 import ContentHandler from "./handlers/content";
@@ -20,6 +21,7 @@ const contentHandler: IContentHandler = new ContentHandler(contentRepo);
 
 const jwtMiddleware = new JWTMiddleware(userRepo);
 
+app.use(cors())
 app.use(express.json());
 
 app.get("/", jwtMiddleware.auth, (req, res) => {
