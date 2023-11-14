@@ -6,13 +6,14 @@ import {
   IUpdateContentDto,
 } from "../dto/content";
 import { IErrorDto } from "../dto/error";
+import { IMessageDto } from "../dto/message";
 import { ICreateUserDto, IUserDto } from "../dto/user";
 import { AuthStatus } from "../middleware/jwt";
 
 export interface IUserHandler {
   registration: RequestHandler<{}, IUserDto | IErrorDto, ICreateUserDto>;
   login: RequestHandler<{}, ICredentialDto | IErrorDto, ILoginDto>;
-  logout: RequestHandler<{}, IErrorDto, undefined, undefined, AuthStatus>;
+  logout: RequestHandler<{}, IMessageDto, undefined, undefined, AuthStatus>;
   getPersonalInfo: RequestHandler<
     {},
     IUserDto | IErrorDto,

@@ -1,4 +1,11 @@
+name: learnhub-api
 version: "3.8"
+secrets:
+  # The `db-password` secret is used to set the database password.
+  db-password:
+    file: secrets/pg-password.txt
+  node-env:
+    file: secrets/node-env.txt
 services:
   server:
     build:
@@ -10,6 +17,8 @@ services:
         target: /app/.env
     ports:
       - 8000:8000
+    environment:
+      - REDIS_URL=redis://cache:6379
     # `depends_on` tells Docker Compose to start the database before your application.
     depends_on:
       db:
@@ -29,12 +38,11 @@ services:
       - 5432
     ports:
       - 5432:5432
+  cache:
+    image: redis:7.2.3
+    expose:
+      - 6379
 volumes:
   # The `db-data` volume persists the database data between container restarts.
   db-data:
-secrets:
-  # The `db-password` secret is used to set the database password.
-  db-password:
-    file: secrets/pg-password.txt
-  node-env:
-    file: secrets/node-env.txt
+

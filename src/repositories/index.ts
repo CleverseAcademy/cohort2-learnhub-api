@@ -25,7 +25,10 @@ export interface IUserRepository {
   create(user: ICreateUserDto): Promise<IUser>;
   findByUsername(username: string): Promise<User>;
   findById(id: string): Promise<IUser>;
-  addToBlacklist(token: string, exp?: Date): Promise<IBlacklist>;
+}
+
+export interface IBlacklistRepository {
+  addToBlacklist(token: string, exp: number): Promise<void>;
   isAlreadyBlacklisted(token: string): Promise<boolean>;
 }
 

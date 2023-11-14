@@ -1,3 +1,3 @@
-export interface IErrorDto {
-  message: string;
-}
+import { IMessageDto } from "./message";
+
+export interface IErrorDto extends IMessageDto {}

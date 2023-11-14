@@ -1,10 +1,12 @@
 import { PrismaClient, User } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { IBlacklist, IUser, IUserRepository } from ".";
+import { IBlacklistRepository, IUser, IUserRepository } from ".";
 import { DEFAULT_USER_SELECT } from "../const";
 import { ICreateUserDto } from "../dto/user";
 
-export default class UserRepository implements IUserRepository {
+export default class UserRepository
+  implements IUserRepository, IBlacklistRepository
+{
   private prisma: PrismaClient;
   constructor(prisma: PrismaClient) {
     this.prisma = prisma;
@@ -30,10 +32,11 @@ export default class UserRepository implements IUserRepository {
     });
   }
 
-  public async addToBlacklist(token: string, exp?: Date): Promise<IBlacklist> {
-    return await this.prisma.blacklist.create({
-      data: { token, exp },
+  public async addToBlacklist(token: string, exp: number): Promise<void> {
+    await this.prisma.blacklist.create({
+      data: { token, exp: new Date(exp) },
     });
+    return;
   }
 
   public async isAlreadyBlacklisted(token: string): Promise<boolean> {

@@ -1,16 +1,16 @@
 import { RequestHandler } from "express";
 import { JsonWebTokenError, JwtPayload, verify } from "jsonwebtoken";
 import { JWT_SECRET, getAuthToken } from "../const";
-import { IUserRepository } from "../repositories";
+import { IBlacklistRepository } from "../repositories";
 
 export interface AuthStatus {
   user: { id: string };
 }
 
 export default class JWTMiddleware {
-  private userRepo: IUserRepository;
-  constructor(userRepo: IUserRepository) {
-    this.userRepo = userRepo;
+  private blacklistRepo: IBlacklistRepository;
+  constructor(userRepo: IBlacklistRepository) {
+    this.blacklistRepo = userRepo;
   }
 
   auth: RequestHandler<unknown, unknown, unknown, unknown, AuthStatus> = async (
@@ -25,7 +25,9 @@ export default class JWTMiddleware {
 
       const token = getAuthToken(authHeader);
 
-      const isBlacklisted = await this.userRepo.isAlreadyBlacklisted(token);
+      const isBlacklisted = await this.blacklistRepo.isAlreadyBlacklisted(
+        token
+      );
       if (isBlacklisted)
         throw new JsonWebTokenError(`Token: ${token} is blacklisted`);
 

@@ -10,17 +10,20 @@ import {
 } from "../const";
 import { ICredentialDto, ILoginDto } from "../dto/auth";
 import { IErrorDto } from "../dto/error";
+import { IMessageDto } from "../dto/message";
 import { ICreateUserDto, IUserDto } from "../dto/user";
 import { AuthStatus } from "../middleware/jwt";
-import { IUserRepository } from "../repositories";
+import { IBlacklistRepository, IUserRepository } from "../repositories";
 import { hashPassword, verifyPassword } from "../utils/bcrypt";
 import mapToDto from "../utils/user.mapper";
 
 export default class UserHandler implements IUserHandler {
   private repo: IUserRepository;
+  private blacklistRepo: IBlacklistRepository;
 
-  constructor(repo: IUserRepository) {
+  constructor(repo: IUserRepository, blacklistRepo: IBlacklistRepository) {
     this.repo = repo;
+    this.blacklistRepo = blacklistRepo;
   }
   public getPersonalInfo: RequestHandler<
     {},
@@ -77,7 +80,7 @@ export default class UserHandler implements IUserHandler {
 
   public logout: RequestHandler<
     {},
-    IErrorDto,
+    IMessageDto,
     undefined,
     undefined,
     AuthStatus
@@ -103,7 +106,7 @@ export default class UserHandler implements IUserHandler {
           })
           .end();
 
-      await this.repo.addToBlacklist(authToken, new Date(exp * 1000));
+      await this.blacklistRepo.addToBlacklist(authToken, exp * 1000);
 
       return res
         .status(200)

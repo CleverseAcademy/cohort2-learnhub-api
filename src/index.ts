@@ -1,29 +1,43 @@
 import { PrismaClient } from "@prisma/client";
 import express from "express";
-import { IContentHandler, IUserHandler } from "./handlers";
+import { RedisClientType, createClient } from "redis";
+import { REDIS_URL } from "./const";
+import { IContentHandler } from "./handlers";
 import ContentHandler from "./handlers/content";
 import UserHandler from "./handlers/user";
 import JWTMiddleware from "./middleware/jwt";
-import { IContentRepository, IUserRepository } from "./repositories";
+import { IContentRepository } from "./repositories";
+import BlacklistRepository from "./repositories/blacklist";
 import ContentRepository from "./repositories/content";
 import UserRepository from "./repositories/user";
 
 const PORT = Number(process.env.PORT || 8888);
 const app = express();
 const clnt = new PrismaClient();
+const redisClnt: RedisClientType = createClient({
+  url: REDIS_URL,
+});
 
-const userRepo: IUserRepository = new UserRepository(clnt);
+clnt
+  .$connect()
+  .then(() => redisClnt.connect())
+  .catch((err) => {
+    console.error("Error", err);
+  });
+
+const blacklistRepo = new BlacklistRepository(redisClnt);
+
+const userRepo = new UserRepository(clnt);
 const contentRepo: IContentRepository = new ContentRepository(clnt);
 
-const userHandler: IUserHandler = new UserHandler(userRepo);
+const userHandler = new UserHandler(userRepo, blacklistRepo);
 const contentHandler: IContentHandler = new ContentHandler(contentRepo);
 
-const jwtMiddleware = new JWTMiddleware(userRepo);
+const jwtMiddleware = new JWTMiddleware(blacklistRepo);
 
 app.use(express.json());
 
-app.get("/", jwtMiddleware.auth, (req, res) => {
-  console.log(res.locals);
+app.get("/", (req, res) => {
   return res.status(200).send("Welcome to LearnHub").end();
 });
 
@@ -53,5 +67,5 @@ contentRouter.patch("/:id", jwtMiddleware.auth, contentHandler.updateById);
 contentRouter.delete("/:id", jwtMiddleware.auth, contentHandler.deleteById);
 
 app.listen(PORT, () => {
-  console.log(`LearnHub API is up at ${PORT}`);
+  console.log(`LearnHub API v+0.0.5 is up at ${PORT}`);
 });
