@@ -7,8 +7,6 @@ jobs:
   hello-world:
     runs-on: ubuntu-latest
     steps:
-      - name: Print out hello-world
-        run: echo "Hello, world."
       - name: Check out repository
         uses: actions/checkout@v3
       - name: list files and directory
