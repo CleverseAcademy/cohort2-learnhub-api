@@ -1,4 +1,5 @@
 name: Docker build image
+run-name: "Build and push Docker image for ${{ github.event_name }} on ${{ github.ref_name }} by ${{ github.actor }}"
 
 on: push
 
