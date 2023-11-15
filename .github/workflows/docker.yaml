@@ -24,4 +24,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/academy-learnhub-api:${{ github.ref_name }}-${{ github.sha }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/academy-learnhub-api:${{ github.ref_name }}-${GITHUB_SHA:0:7}
+        env:
+          GITHUB_SHA: ${{ github.sha }}
