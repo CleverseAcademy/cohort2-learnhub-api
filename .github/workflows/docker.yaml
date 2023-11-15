@@ -17,6 +17,10 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - run: echo "SHORTENED_SHA=${GITHUB_SHA:0:7}" >> $GITHUB_OUTPUT
+        id: hsh-calc
+        env:
+          GITHUB_SHA: ${{ github.sha }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Build and push
@@ -24,6 +28,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/academy-learnhub-api:${{ github.ref_name }}-${GITHUB_SHA:0:7}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/academy-learnhub-api:${{ github.ref_name }}-${{ steps.hsh-calc.outputs.SHORTENED_SHA }}
         env:
           GITHUB_SHA: ${{ github.sha }}
