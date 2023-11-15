@@ -8,3 +8,7 @@ jobs:
     steps:
       - name: Echo hello-world
         run: echo "Hello, world."
+      - name: กูอยู่ที่ไหนวะเนี่ย
+        run: pwd
+      - name: ไหนมีของอะไรบ้างวะ
+        run: ls
