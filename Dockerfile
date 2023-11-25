@@ -37,13 +37,15 @@ RUN npm install -g pnpm@${PNPM_VERSION}
 
 WORKDIR /app
 
-COPY --from=builder /app/package.json /app/pnpm-lock.yaml ./
+COPY --from=builder --chown=node /app/package.json /app/pnpm-lock.yaml ./
 
-COPY --from=builder /app/dist/ ./dist
-
-COPY --from=builder /app/prisma/ ./prisma
+COPY --from=builder --chown=node /app/prisma/ ./prisma
 
 RUN pnpm install --prod --frozen-lockfile
+
+COPY --from=builder --chown=node /app/dist/ ./dist
+
+USER node
 
 EXPOSE $SVC_PORT
 
