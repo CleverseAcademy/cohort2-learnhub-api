@@ -2,9 +2,6 @@ name: Image build and deploy to server
 on:
   push:
     branches: [main]
-  pull_request: 
-    branches: 
-      - "**"
 jobs:
   build-docker-image:
     runs-on: ubuntu-latest
