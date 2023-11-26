@@ -5,6 +5,7 @@ import { IContentHandler, IUserHandler } from "./handlers";
 import ContentHandler from "./handlers/content";
 import UserHandler from "./handlers/user";
 import JWTMiddleware from "./middleware/jwt";
+import VersionMiddleware from "./middleware/version";
 import { IContentRepository, IUserRepository } from "./repositories";
 import ContentRepository from "./repositories/content";
 import UserRepository from "./repositories/user";
@@ -20,12 +21,13 @@ const userHandler: IUserHandler = new UserHandler(userRepo);
 const contentHandler: IContentHandler = new ContentHandler(contentRepo);
 
 const jwtMiddleware = new JWTMiddleware(userRepo);
+const versionMiddleware = new VersionMiddleware()
 
 app.use(cors())
 app.use(express.json());
+app.use(versionMiddleware.version)
 
-app.get("/", jwtMiddleware.auth, (req, res) => {
-  console.log(res.locals);
+app.get("/", (req, res) => {
   return res.status(200).send("Welcome to LearnHub").end();
 });
 
